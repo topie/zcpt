@@ -1,0 +1,50 @@
+<div class="form">
+    <form ele-type="search" role="form">
+        <div class="form-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group"><label>学年</label><select id="studyYear" name="studyYear" id=""
+                                                                     class="form-control ">
+
+                    </select></div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group"><label>学期</label><select id="studyYearNum" name="studyYearNum" id=""
+                                                                     class="form-control ">
+                        <option value="">请选择</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                    </select></div>
+                </div>
+            </div>
+        </div>
+        <div class="form-actions right">
+            <button type="button" id="searchBtn" class="btn btn-primary" title="搜索"><i class="fa fa-search"><i></i></i>
+                搜索
+            </button>
+        </div>
+    </form>
+    <hr>
+    <div id="score_grid_wrapper" class="dataTables_wrapper no-footer">
+    </div>
+</div>
+<script>
+    function getStudyYear() {
+        var studyYear;
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        if (month < 8) {
+            studyYear = (year - 1) + "-" + year;
+            var studyYearNum = 2;
+            $("select[name=studyYear]").val(studyYear);
+            $("select[name=studyYearNum]").val(studyYearNum);
+        }
+        else {
+            studyYear = year + "-" + (year + 1);
+            studyYearNum = 1;
+            $("select[name=studyYear]").val(studyYear);
+            $("select[name=studyYearNum]").val(studyYearNum);
+        }
+    }
+</script>

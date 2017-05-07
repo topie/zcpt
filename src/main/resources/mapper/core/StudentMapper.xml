@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.topie.campus.core.dao.StudentMapper">
+    <resultMap id="BaseResultMap" type="com.topie.campus.core.model.Student">
+        <!--
+          WARNING - @mbggenerated
+        -->
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="avatar" property="avatar" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="student_no" property="studentNo" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="gender" property="gender" jdbcType="VARCHAR"/>
+        <result column="birth" property="birth" jdbcType="VARCHAR"/>
+        <result column="political_status" property="politicalStatus" jdbcType="VARCHAR"/>
+        <result column="ethnic_group" property="ethnicGroup" jdbcType="VARCHAR"/>
+        <result column="src_region" property="srcRegion" jdbcType="VARCHAR"/>
+        <result column="academe" property="academe" jdbcType="VARCHAR"/>
+        <result column="subject" property="subject" jdbcType="VARCHAR"/>
+        <result column="grade" property="grade" jdbcType="VARCHAR"/>
+        <result column="shool_len" property="shoolLen" jdbcType="VARCHAR"/>
+        <result column="school_roll" property="schoolRoll" jdbcType="VARCHAR"/>
+        <result column="grade_year" property="gradeYear" jdbcType="VARCHAR"/>
+        <result column="major_direction" property="majorDirection" jdbcType="VARCHAR"/>
+        <result column="enter_date" property="enterDate" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="comment" property="comment" jdbcType="VARCHAR"/>
+        <result column="english_type" property="englishType" jdbcType="VARCHAR"/>
+        <result column="full_name" property="fullName" jdbcType="VARCHAR"/>
+        <result column="major_code" property="majorCode" jdbcType="VARCHAR"/>
+        <result column="gradation" property="gradation" jdbcType="VARCHAR"/>
+        <result column="inschool" property="inschool" jdbcType="VARCHAR"/>
+        <result column="is_register" property="isRegister" jdbcType="VARCHAR"/>
+        <result column="graduate_date" property="graduateDate" jdbcType="VARCHAR"/>
+        <result column="contact_phone" property="contactPhone" jdbcType="VARCHAR"/>
+        <result column="is_graduate" property="isGraduate" jdbcType="VARCHAR"/>
+        <result column="college" property="college" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="SimpleDtoResultMap" type="com.topie.campus.core.dto.StudentSimpleDto">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="student_no" jdbcType="VARCHAR" property="studentNo"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="contact_phone" jdbcType="VARCHAR" property="contactPhone"/>
+        <result column="is_bind" jdbcType="INTEGER" property="isBind"/>
+        <result column="subject" jdbcType="VARCHAR" property="subject"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,avatar,user_id,student_no,name,gender,ethnic_group,birth,political_status,academe,subject,contact_phone,email,
+        src_region,grade,shool_len,grade_year,major_direction,enter_date,comment,english_type,full_name,major_code,gradation
+        ,inschool,is_register,graduate_date,is_graduate,college,password
+    </sql>
+    <select id="findStudentByPageNumAndPageSize" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from topie_campus.t_student
+        <where>
+            <if test="student.name!=null and student.name!=''">
+                and `name` like concat('%',concat(#{student.name},'%'))
+            </if>
+        </where>
+        <if test="student.sort_ != null and student.sort_ != ''">
+            ${student.sort_}
+        </if>
+        <if test="pageOffset!=null and pageSize!=null">
+            limit #{pageOffset},#{pageSize}
+        </if>
+    </select>
+    <select id="countStudent" resultType="java.lang.Long">
+        select
+        count(1)
+        from topie_campus.t_student
+        <where>
+            <if test="student.name!=null and student.name!=''">
+                and `name` like concat('%',concat(#{student.name},'%'))
+            </if>
+        </where>
+    </select>
+    <select id="findStudentSimpleDtoByTeacherIdAndPageNumAndPageSize"
+            resultMap="SimpleDtoResultMap">
+        select s.id,s.user_id,s.student_no,s.name,s.subject,s.contact_phone,if(st.teacher_id=#{teacherId},1,0) is_bind
+        from topie_campus.t_student s
+        left join topie_campus.t_relate_student_teacher st on s.id=st.student_id
+        and st.type_id = #{typeId} and st.teacher_id=#{teacherId}
+        <where>
+            <if test="student.name != null and student.name != ''">
+                and s.name like concat('%',concat(#{student.name}, '%'))
+            </if>
+            <if test="student.studentNo != null and student.studentNo != ''">
+                and s.student_no like concat('%',concat(#{student.studentNo}, '%'))
+            </if>
+            <if test="student.contactPhone != null and student.contactPhone != ''">
+                and s.contact_phone like concat('%',concat(#{student.contactPhone}, '%'))
+            </if>
+            <if test="student.isBind != null and student.isBind == 0">
+                and st.teacher_id is null
+            </if>
+            <if test="student.isBind != null and student.isBind == 1">
+                and st.teacher_id is not null
+            </if>
+        </where>
+        order by is_bind desc,s.id asc
+        <if test="pageOffset!=null and pageSize!=null">
+            limit #{pageOffset},#{pageSize}
+        </if>
+    </select>
+    <select id="countStudentSimpleDtoListByTeacherId" resultType="java.lang.Long">
+        select
+        count(1)
+        from topie_campus.t_student s
+        left join topie_campus.t_relate_student_teacher st on s.id=st.student_id
+        and st.type_id = #{typeId} and st.teacher_id=#{teacherId}
+        <where>
+            <if test="student.name != null and student.name != ''">
+                and s.name like concat('%',concat(#{student.name}, '%'))
+            </if>
+            <if test="student.studentNo != null and student.studentNo != ''">
+                and s.student_no like concat('%',concat(#{student.studentNo}, '%'))
+            </if>
+            <if test="student.contactPhone != null and student.contactPhone != ''">
+                and s.contact_phone like concat('%',concat(#{student.contactPhone}, '%'))
+            </if>
+            <if test="student.isBind != null and student.isBind == 0">
+                and st.teacher_id is null
+            </if>
+            <if test="student.isBind != null and student.isBind == 1">
+                and st.teacher_id is not null
+            </if>
+        </where>
+    </select>
+    
+    <select id="findStudentIdByUserId" resultType="java.lang.Integer">
+        select
+        id
+        from topie_campus.t_student
+        where user_id = #{userId}
+    </select>
+    
+    <select id="findByStuId" resultMap="BaseResultMap">
+        select
+        t.*,f.xmc as faculty
+        from topie_campus.t_student t left join t_major m on m.zydm=t.major_code left join t_faculty f on f.xdm = m.ssxdm
+        where id = #{studentId}
+    </select>
+    
+     <select id="findStudentNameByUserId" resultType="java.lang.String">
+        select
+        name
+        from topie_campus.t_student
+        where user_id = #{userId}
+    </select>
+    
+    <select id="findStudentByUserId" resultMap="BaseResultMap">
+        select
+        *
+        from topie_campus.t_student
+        where user_id = #{userId}
+    </select>
+    <select id="findIdByStudentNo" resultType="java.lang.Integer">
+        select id from topie_campus.t_student where student_no=#{studentNo}
+    </select>
+    <select id="findStudentNoByUserId" resultType="java.lang.String">
+        select student_no from topie_campus.t_student where user_id=#{userId}
+    </select>
+
+    <select id="findPhoneByMajorId" resultType="java.lang.String">
+        select contact_phone from t_student
+        <where>
+            <if test="facultyId != null and facultyId !=''">
+                binary major_code = #{facultyId}
+            </if>
+        </where>
+    </select>
+
+    <select id="findByMajor" resultMap="BaseResultMap">
+        select * from t_student t
+        <where>
+            binary major_code in
+            <foreach item="item" index="index" collection="majorIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            <if test="student!=null"> 
+	             <if test="student.name!=null and student.name!=''">
+	                and t.name like concat('%',concat(#{student.name}, '%'))
+	            </if>
+	            <if test="student.studentNo!= null and student.studentNo!= ''">
+	                and t.student_no=#{student.studentNo}
+	            </if>
+            </if>
+        </where>
+        <if test="pageOffset!=null and pageSize!=null">
+            limit #{pageOffset},#{pageSize}
+        </if>
+    </select>
+
+    <select id="countByMajor" resultType="java.lang.Long">
+        select count(1) from t_student
+        <where>
+            binary major_code in
+            <foreach item="item" index="index" collection="majorIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </where>
+    </select>
+    <select id="findStudentByTypeId" resultType="com.topie.campus.core.dto.StudentSimpleDto">
+        select s.id,s.name,s.student_no ,s.avatar from topie_campus.t_student s left join topie_campus.t_relate_student_teacher st
+        on s.id = st.student_id
+        where st.type_id=#{typeId}
+        group by s.id
+    </select>
+    <select id="findStudentByTeacherIdAndTypeId" resultType="com.topie.campus.core.dto.StudentSimpleDto">
+        select s.id,s.name,s.student_no studentNo,s.avatar from topie_campus.t_student s left join topie_campus.t_relate_student_teacher st
+        on s.id = st.student_id
+        where st.teacher_id=#{teacherId} and st.type_id=#{typeId}
+    </select>
+
+</mapper>

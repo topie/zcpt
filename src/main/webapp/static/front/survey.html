@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>问卷调查</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../vendors/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- MetisMenu CSS -->
+    <link href="../vendors/metisMenu/metisMenu.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="application/css/sb-admin-2.css" rel="stylesheet">
+    <link href="application/css/index.css" rel="stylesheet">
+    <link href="application/css/survey.css" rel="stylesheet">
+
+    <!-- Custom Fonts -->
+    <link href="../vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="../vendors/html5shiv/dist/html5shiv.js"></script>
+    <script src="../vendors/respond/dest/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+<body>
+
+<div id="wrapper">
+    <nav class="ldhd navbar navbar-default" role="navigation">
+        <div class="ldhd-bg container-fluid">
+            <div class="container">
+                <a href="index.html" class="pdr32"><img src="application/img/hd_logo1.png"></a>
+                <a href="index.html"><img class="sm-pdt10" src="application/img/hd_logo2.png"></a>
+                <a href="index.html"><img class="sm-pdt10" src="application/img/hd_logo3.png"></a>
+            </div>
+        </div><!-- /.container-fluid -->
+    </nav>
+    <!-- Second Nav -->
+
+    <div id="page-wrapper" style="margin-left: 0">
+        <div class="row">
+            <div class="col-lg-12">
+                <h3 class="page-header">问卷调查填写</h3>
+            </div>
+            <!-- /.col-lg-12 -->
+        </div>
+    </div>
+    <!-- /#page-wrapper -->
+
+</div>
+<!-- /#wrapper -->
+
+<footer>
+    <div class="container">
+
+        <div class="copy text-center">
+            版权所有 <a href='#'>北京联合大学</a>
+        </div>
+
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="../vendors/jquery/dist/jquery.min.js"></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="../vendors/bootstrap/js/bootstrap.min.js"></script>
+<script src="../vendors/jquery.cookie/jquery.cookie.js"></script>
+
+
+<script src="../vendors/bootbox.js"></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="application/js/sb-admin-2.js"></script>
+
+<script src="../vendors/jquery.tmpl.min.js"></script>
+<script src="../vendors/artTemplate/template.js"></script>
+<script src="../global/js/common.js"></script>
+<script src="application/js/app.js"></script>
+<script src="../global/js/topie-starrr.js"></script>
+
+<script id="teacherSurveyTmpl" type="text/html">
+    <div class="table-responsive">
+        <table id="survey_table" class="table table-bordered">
+            <thead>
+            <tr>
+                {{each teacher as t}}
+                <th>
+                    <div class="user-head">
+                        <a class="inbox-avatar" href="javascript:;">
+                            {{if t.avatar==null || t.avatar==""}}
+                            <img width="64" height="64"
+                                 src="../vendors/bootstrap-comment/img/default-avatar.jpg"/>
+                            {{/if}}
+                            {{if t.avatar!=null && t.avatar!=""}}
+                            <img width="64" height="64"
+                                 src="{{t.avatar}}"/>
+                            {{/if}}
+                        </a>
+                        <div class="user-name">
+                            <h3><a style="color:black" href="javascript:void(0);">{{t.name}}</a></h3>
+                        </div>
+                    </div>
+                </th>
+                {{/each}}
+            </tr>
+            </thead>
+            <tbody>
+            {{each questions as q}}
+            <tr>
+                <td class="high" colspan="{{teacher.length}}">
+                    {{if q.questionType==1}}评分题{{/if}}
+                    {{if q.questionType==2}}问答题{{/if}}
+                    {{q.sort}}:{{q.questionContent}}
+                </td>
+            </tr>
+            <tr role="survey">
+                {{each teacher as t2 _index}}
+                <td>
+                    <input type="hidden" role="score" value="{{q.questionId}}">
+                    <input type="hidden" role="score_type" value="{{q.questionType}}">
+                    {{if q.questionType==1}}
+                    <div class="starrr"></div>
+                    <span>0</span>分
+                    <input type="hidden" index="{{_index}}" role="score_val" value="0">
+                    {{/if}}
+                    {{if q.questionType==2}}
+                    <textarea role="score_val" class="form-control input-large" rows="3"
+                              aria-required="true" aria-describedby="questionContent-error"
+                              aria-invalid="false"></textarea>
+                    {{/if}}
+                </td>
+                {{/each}}
+            </tr>
+            {{/each}}
+            <tr role="summary">
+                {{each teacher as t2 _index}}
+                <td>
+                    合计:<span style="font-size: large;font-weight: 200;color: red" index="{{_index}}">0</span>分
+                </td>
+                {{/each}}
+            </tr>
+            <tr>
+                <td class="high" style="text-align: center" colspan="{{teacher.length}}">
+                    <div>
+                        <button type="button" id="submit" class="btn btn-lg btn-info">提 交
+                        </button>
+                        <button type="button" id="leave" class="btn btn-lg btn-default">离 开
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</script>
+<script id="studentSurveyTmpl" type="text/html">
+    <div class="table-responsive">
+        <table id="survey_table" class="table table-bordered">
+            <thead>
+            <tr>
+                {{each student as s}}
+                <th>
+                    <div class="user-head">
+                        <a class="inbox-avatar" href="javascript:;">
+                            {{if s.avatar==null || s.avatar==""}}
+                            <img width="64" height="64"
+                                 src="../vendors/bootstrap-comment/img/default-avatar.jpg"/>
+                            {{/if}}
+                            {{if s.avatar!=null && s.avatar!=""}}
+                            <img width="64" height="64"
+                                 src="{{s.avatar}}"/>
+                            {{/if}}
+                        </a>
+                        <div class="user-name">
+                            <h3><a style="color:black" href="javascript:void(0);">{{s.name}}</a></h3>
+                        </div>
+                    </div>
+                </th>
+                {{/each}}
+            </tr>
+            </thead>
+            <tbody>
+            {{each questions as q}}
+            <tr>
+                <td class="high" colspan="{{student.length}}">
+                    {{if q.questionType==1}}评分题{{/if}}
+                    {{if q.questionType==2}}问答题{{/if}}
+                    {{q.sort}}:{{q.questionContent}}
+                </td>
+            </tr>
+            <tr role="survey">
+                {{each student as s2 _index}}
+                <td>
+                    <input type="hidden" role="score" value="{{q.questionId}}">
+                    <input type="hidden" role="score_type" value="{{q.questionType}}">
+                    {{if q.questionType==1}}
+                    <div class="starrr"></div>
+                    <span>0</span>分
+                    <input type="hidden" index="{{_index}}" role="score_val" value="0">
+                    {{/if}}
+                    {{if q.questionType==2}}
+                    <textarea role="score_val" class="form-control input-large" rows="3"
+                              aria-required="true" aria-describedby="questionContent-error"
+                              aria-invalid="false" maxlength="200"></textarea>
+                    {{/if}}
+                </td>
+                {{/each}}
+            </tr>
+            {{/each}}
+            <tr role="summary">
+                {{each student as s2 _index}}
+                <td>
+                    合计:<span style="font-size: large;font-weight: 200;color: red" index="{{_index}}">0</span>分
+                </td>
+                {{/each}}
+            </tr>
+            <tr>
+                <td class="high" style="text-align: center" colspan="{{student.length}}">
+                    <div>
+                        <button type="button" id="submit" class="btn btn-lg btn-info">提 交
+                        </button>
+                        <button type="button" id="leave" class="btn btn-lg btn-default">离 开
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</script>
+
+<script type="text/javascript">
+    bootbox.setLocale("zh_CN");
+    if (window.location.href.lastIndexOf("?u=") > 0) {
+        var teacherArray = [];
+        var studentArray = [];
+        var token = $.cookie('tc_t');
+        if (typeof(token) == "undefined" || token == null) {
+            window.location.href = './login.html';
+        }
+        var url = window.location;
+        url = url.toString();
+        var groupId = url.substring(url.lastIndexOf("?u=") + 3);
+        $.ajax(
+                {
+                    type: 'GET',
+                    url: App.href + "/api/front/survey/survey",
+                    dataType: "json",
+                    data: {
+                        "groupId": groupId
+                    },
+                    beforeSend: function (request) {
+                        request.setRequestHeader("X-Auth-Token", token);
+                    },
+                    success: function (result) {
+                        if (result.code === 200) {
+                            var data = result.data;
+                            $("h3.page-header").html("问卷调查-" + data.group.groupName);
+                            if (data.isComplete) {
+                                bootbox.confirm("你已经参与过该问卷，是否重新参与?", function (result) {
+                                    if (!result) {
+                                        alert("谢谢！系统自动离开~");
+                                        window.close();
+                                    }
+                                });
+                            }
+                            var html = "";
+                            if (data.groupType == 1) {
+                                if (data.teacher.length > 0) {
+                                    $.each(data.teacher, function (i, d) {
+                                        teacherArray.push(d.id);
+                                    });
+                                }
+                                html = template('teacherSurveyTmpl', data);
+                                $("#page-wrapper").append(html);
+                                $("#submit").on("click", function () {
+                                    bootbox.confirm("确定提交吗?", function (result) {
+                                        if (result) {
+                                            var submit_array = [];
+                                            $.each(teacherArray, function (i, teacherId) {
+                                                $("#survey_table >tbody").find("tr[role=survey]").each(function (j, d) {
+                                                    var q = {};
+                                                    q['groupId'] = groupId;
+                                                    q['groupType'] = data.groupType;
+                                                    q['teacherId'] = teacherId;
+                                                    var v1 = $(this).find("td:eq(" + i + ")").find("input[role=score]").val();
+                                                    q['questionId'] = parseInt(v1);
+                                                    var v2 = $(this).find("td:eq(" + i + ")").find("input[role=score_type]").val();
+                                                    q['questionType'] = parseInt(v2);
+                                                    if (v2 == 1) {
+                                                        var v3 = $(this).find("td:eq(" + i + ")").find("input[role=score_val]").val();
+                                                        q['record'] = parseInt(v3);
+                                                        q['content'] = "";
+                                                    } else {
+                                                        var v4 = $(this).find("td:eq(" + i + ")").find("textarea[role=score_val]").val();
+                                                        q['record'] = 0;
+                                                        q['content'] = v4;
+                                                    }
+                                                    submit_array.push(q);
+                                                });
+                                            });
+                                            $.ajax({
+                                                type: 'POST',
+                                                url: App.href + "/api/front/studentSurvey/submit?groupId=" + groupId,
+                                                dataType: "json",
+                                                contentType: "application/json; charset=utf-8",
+                                                data: JSON.stringify(submit_array),
+                                                beforeSend: function (request) {
+                                                    request.setRequestHeader("X-Auth-Token", token);
+                                                },
+                                                success: function (result) {
+                                                    if (result.code === 200) {
+                                                        alert("谢谢~");
+                                                        window.close();
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
+                                });
+                            } else {
+                                if (data.student.length > 0) {
+                                    $.each(data.student, function (i, d) {
+                                        studentArray.push(d.id);
+                                    });
+                                }
+                                html = template('studentSurveyTmpl', data);
+                                $("#page-wrapper").append(html);
+                                $("#submit").on("click", function () {
+                                    bootbox.confirm("确定提交吗?", function (result) {
+                                        if (result) {
+                                            var submit_array = [];
+                                            $.each(studentArray, function (i, studentId) {
+                                                $("#survey_table >tbody").find("tr[role=survey]").each(function (j, d) {
+                                                    var q = {};
+                                                    q['groupId'] = groupId;
+                                                    q['groupType'] = data.groupType;
+                                                    q['studentId'] = studentId;
+                                                    var v1 = $(this).find("td:eq(" + i + ")").find("input[role=score]").val();
+                                                    q['questionId'] = parseInt(v1);
+                                                    var v2 = $(this).find("td:eq(" + i + ")").find("input[role=score_type]").val();
+                                                    q['questionType'] = parseInt(v2);
+                                                    if (v2 == 1) {
+                                                        var v3 = $(this).find("td:eq(" + i + ")").find("input[role=score_val]").val();
+                                                        q['record'] = parseInt(v3);
+                                                        q['content'] = "";
+                                                    } else {
+                                                        var v4 = $(this).find("td:eq(" + i + ")").find("textarea[role=score_val]").val();
+                                                        q['record'] = 0;
+                                                        q['content'] = v4;
+                                                    }
+                                                    submit_array.push(q);
+                                                });
+                                            });
+                                            $.ajax({
+                                                type: 'POST',
+                                                url: App.href + "/api/front/teacherSurvey/submit?groupId=" + groupId,
+                                                dataType: "json",
+                                                contentType: "application/json; charset=utf-8",
+                                                data: JSON.stringify(submit_array),
+                                                beforeSend: function (request) {
+                                                    request.setRequestHeader("X-Auth-Token", token);
+                                                },
+                                                success: function (result) {
+                                                    if (result.code === 200) {
+                                                        alert("谢谢~");
+                                                        window.close();
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
+                                });
+                            }
+                            $(".starrr").starrr({
+                                numStars: result.data.group.perPoint
+                            });
+                            $('.starrr').on('starrr:change', function (e, value) {
+                                $(this).next("span").html(value);
+                                $(this).next().next("input").val(value);
+                                var i = $(this).next().next("input").attr("index");
+                                calculateRecord(i);
+                            });
+                            $("#leave").on("click", function () {
+                                bootbox.confirm("确定离开吗?", function (result) {
+                                    if (result) {
+                                        window.close();
+                                    }
+                                });
+                            });
+                        } else {
+                            alert(result.message);
+                        }
+                    }
+                }
+        );
+        function calculateRecord(i) {
+            var total = 0;
+            $("tr[role=survey]").find("input[index=" + i + "]").each(function (i, d) {
+                var record = $(this).val();
+                total += parseInt(record);
+            });
+            $("tr[role=summary]").find("span[index=" + i + "]").text(total);
+        }
+    }
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.topie.campus.core.dao.TeacherStudentMapper">
+    <resultMap id="BaseResultMap" type="com.topie.campus.core.model.TeacherStudent">
+        <!--
+          WARNING - @mbggenerated
+        -->
+        <id column="type_id" jdbcType="INTEGER" property="typeId"/>
+        <id column="student_id" jdbcType="INTEGER" property="studentId"/>
+        <id column="teacher_id" jdbcType="INTEGER" property="teacherId"/>
+        <result column="student_no" jdbcType="VARCHAR" property="studentNo"/>
+        <result column="employee_no" jdbcType="VARCHAR" property="employeeNo"/>
+    </resultMap>
+    <resultMap id="TreeNodeMap" type="com.topie.campus.common.TreeNode">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="parent_id" property="pId" jdbcType="INTEGER"/>
+        <result column="student_name" property="name" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <insert id="insertIgnore">
+      insert ignore into
+      topie_campus.t_relate_student_teacher(`type_id`,`teacher_id`,`student_id`,`student_no`,`employee_no`)
+      values(#{ts.typeId},#{ts.teacherId},#{ts.studentId},#{ts.studentNo},#{ts.employeeNo})
+    </insert>
+    <select id="selectStudentIdsAndTypeId" resultType="java.lang.Integer">
+        select distinct student_id from topie_campus.t_relate_student_teacher where type_id=#{typeId}
+    </select>
+
+    <select id="selectStudentByTeacherIdAndTypeIds" resultType="java.lang.Integer">
+        select distinct student_id from topie_campus.t_relate_student_teacher where teacher_id = #{teacherId}
+        <if test="typeIds!=null">
+            and
+            <foreach item="item" index="index" collection="typeIds" open="(" separator="or" close=")">
+                type_id= #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="selectTeacherIdByTypeId" resultType="java.lang.Integer">
+        select distinct teacher_id from topie_campus.t_relate_student_teacher where type_id=#{typeId}
+    </select>
+
+    <select id="selectTeacherRelationByTypeIdAndStudentId" resultMap="BaseResultMap">
+        select * from topie_campus.t_relate_student_teacher where type_id=#{typeId} and student_id = #{studentId}
+    </select>
+    <select id="selectStudentByTeacherIdAndTypeId" resultMap="TreeNodeMap">
+      select
+      t.id,t.name student_name,0 parent_id from topie_campus.t_relate_student_teacher st
+      inner join topie_campus.t_student t
+      on st.student_id=t.id
+      where teacher_id = #{teacherId} and type_id= #{typeId}
+    </select>
+
+    <delete id="deleteByStudyYearAndStudyYearNum">
+        delete from t_relate_student_teacher
+    </delete>
+
+</mapper>

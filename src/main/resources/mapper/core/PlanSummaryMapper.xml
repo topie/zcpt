@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.topie.campus.core.dao.PlanSummaryMapper">
+  <resultMap id="BaseResultMap" type="com.topie.campus.core.model.PlanSummary">
+    <!--
+      WARNING - @mbggenerated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="study_year" jdbcType="VARCHAR" property="studyYear" />
+    <result column="study_year_num" jdbcType="VARCHAR" property="studyYearNum" />
+    <result column="teacher_id" jdbcType="INTEGER" property="teacherId" />
+    <result column="teacher_no" jdbcType="VARCHAR" property="teacherNo" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  
+   <select id="findByPage" resultMap="BaseResultMap">
+        select
+        *
+        from t_plan_summary
+        <where>
+        <if test="planSummary!=null">
+            <if test="planSummary.teacherId!=null and planSummary.teacherId!=''">
+                and teacher_id = #{planSummary.teacherId}
+            </if>
+         </if>
+        </where>
+        <if test="pageOffset!=null and pageSize!=null">
+            limit #{pageOffset},#{pageSize}
+        </if>
+    </select>
+    
+    <select id="findByExcel" resultMap="BaseResultMap">
+        select
+        p.study_year,p.study_year_num,t.employee_no as teacher_no,p.create_time,p.content,p.type,t.name as teacherName
+        from t_plan_summary p left join t_teacher t 
+        on t.id = p.teacher_id
+    </select>
+    
+    <select id="countByPage" resultType="java.lang.Long">
+        select
+        count(1)
+        from t_plan_summary
+         <where>
+        <if test="planSummary!=null">
+            <if test="planSummary.teacherId!=null and planSummary.teacherId!=''">
+               teacher_id = #{planSummary.teacherId}
+            </if>
+         </if>
+        </where>
+    </select>
+  
+</mapper>
